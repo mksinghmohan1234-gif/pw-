@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <title>LearnSpace - Video Learning</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b1020;
+      color: #f5f7ff;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px 7%;
+      border-bottom: 1px solid #252d43;
+      background: #10172a;
+    }
+
+    .brand {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand span {
+      color: #8b7cff;
+    }
+
+    .hero {
+      padding: 42px 7% 25px;
+    }
+
+    .tag {
+      display: inline-block;
+      color: #bcb4ff;
+      background: #211e42;
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: #a8b0c5;
+      line-height: 1.7;
+      max-width: 550px;
+    }
+
+    main {
+      padding: 10px 7% 60px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .toolbar h2 {
+      font-size: 21px;
+    }
+
+    .search {
+      width: min(100%, 300px);
+      padding: 12px 15px;
+      border: 1px solid #303951;
+      background: #141c30;
+      color: white;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .search:focus {
+      border-color: #8b7cff;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+      gap: 24px;
+    }
+
+    .video-card {
+      background: #131b2e;
+      border: 1px solid #273149;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-3px);
+      border-color: #7164d9;
+    }
+
+    .player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #05070d;
+      display: block;
+      border: 0;
+    }
+
+    .video-info {
+      padding: 17px;
+    }
+
+    .video-info h3 {
+      font-size: 17px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .video-info p {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #9ca8c0;
+    }
+
+    .empty {
+      display: none;
+      text-align: center;
+      color: #a8b0c5;
+      padding: 35px 10px;
+    }
+
+    footer {
+      text-align: center;
+      border-top: 1px solid #252d43;
+      padding: 24px 15px;
+      color: #8792aa;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 19px 5%;
+      }
+
+      .hero {
+        padding: 32px 5% 22px;
+      }
+
+      main {
+        padding: 10px 5% 40px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .search {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="brand">Learn<span>Space.</span></div>
+  </header>
+
+  <section class="hero">
+    <div class="tag">YOUR LEARNING SPACE</div>
+    <h1>Learn something<br>new today.</h1>
+    <p>
+      Watch lessons at your own pace.
+      Select a video and start learning.
+    </p>
+  </section>
+
+  <main>
+    <div class="toolbar">
+      <h2>Latest Videos</h2>
+
+      <input
+        type="search"
+        id="search"
+        class="search"
+        placeholder="Search videos..."
+        aria-label="Search videos"
+      >
+    </div>
+
+    <div class="video-grid" id="videoGrid"></div>
+
+    <div class="empty" id="empty">
+      No videos found.
+    </div>
+  </main>
+
+  <footer>
+    © <span id="year"></span> LearnSpace. Keep learning.
+  </footer>
+
+  <script>
+    /*
+      ADD YOUR VIDEOS HERE.
+
+      Google Drive:
+      Paste the file ID from your Drive URL.
+
+      Example URL:
+      https://drive.google.com/file/d/FILE_ID/view
+
+      Replace FILE_ID below with the actual ID.
+    */
+
+    const videos = [
+      {
+        title: "Welcome - Your First Lesson",
+        driveId: "1dDWVkxxQJ9ZJpvE356wNIAarBrOn7XeW"
+      }
+
+      // Add more videos like this:
+      // {
+      //   title: "Mathematics - Lesson 2",
+      //   driveId: "YOUR_SECOND_VIDEO_FILE_ID"
+      // },
+    ];
+
+    const grid = document.getElementById("videoGrid");
+    const search = document.getElementById("search");
+    const empty = document.getElementById("empty");
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    function getVideoUrl(video) {
+      // Also allow a complete Google Drive URL.
+      const input = video.driveId.trim();
+
+      if (input.startsWith("https://drive.google.com/")) {
+        const match = input.match(/\/file\/d\/([^/]+)/);
+
+        if (match) {
+          return "https://drive.google.com/file/d/" +
+            encodeURIComponent(match[1]) + "/preview";
+        }
+
+        return input;
+      }
+
+      return "https://drive.google.com/file/d/" +
+        encodeURIComponent(input) + "/preview";
+    }
+
+    function renderVideos() {
+      const query = search.value.trim().toLowerCase();
+
+      const filtered = videos.filter(video =>
+        video.title.toLowerCase().includes(query)
+      );
+
+      grid.innerHTML = "";
+
+      filtered.forEach(video => {
+        const card = document.createElement("article");
+        card.className = "video-card";
+
+        const title = document.createElement("h3");
+        title.textContent = video.title;
+
+        const player = document.createElement("iframe");
+        player.className = "player";
+        player.src = getVideoUrl(video);
+        player.title = video.title;
+        player.allow =
+          "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        player.allowFullscreen = true;
+        player.loading = "lazy";
+        player.referrerPolicy = "strict-origin-when-cross-origin";
+
+        const info = document.createElement("div");
+        info.className = "video-info";
+        info.appendChild(title);
+
+        const description = document.createElement("p");
+        description.textContent = "Video lesson";
+        info.appendChild(description);
+
+        card.appendChild(player);
+        card.appendChild(info);
+        grid.appendChild(card);
+      });
+
+      empty.style.display = filtered.length ? "none" : "block";
+    }
+
+    search.addEventListener("input", renderVideos);
+
+    renderVideos();
+  </script>
+
+</body>
+</html>
